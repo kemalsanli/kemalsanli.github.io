@@ -1,0 +1,67 @@
+name: Fetch Medium posts
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # every 6 hours
+  workflow_dispatch:
+
+jobs:
+  update-medium-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install feedparser
+        run: pip install feedparser
+
+      - name: Fetch Medium RSS and write JSON
+        env:
+          MEDIUM_FEED_URL: https://medium.com/feed/@kemalsans
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import datetime
+          import feedparser
+
+          feed_url = os.environ["MEDIUM_FEED_URL"]
+          feed = feedparser.parse(feed_url)
+
+          posts = []
+          for entry in feed.entries[:20]:
+            posts.append({
+              "title": entry.get("title", "").strip(),
+              "link": entry.get("link", "").strip(),
+              "published": entry.get("published", ""),
+              "thumbnail": entry.get("media_thumbnail", [{}])[0].get("url")
+                          or entry.get("media_content", [{}])[0].get("url")
+                          or entry.get("image", ""),
+              "description": entry.get("summary", "").strip()
+            })
+
+          out_path = "data/medium.json"
+          os.makedirs(os.path.dirname(out_path), exist_ok=True)
+          with open(out_path, "w", encoding="utf-8") as f:
+            json.dump({
+              "fetched_at": datetime.datetime.utcnow().isoformat() + "Z",
+              "posts": posts
+            }, f, ensure_ascii=False, indent=2)
+          PY
+
+      - name: Commit and push if changed
+        run: |
+          if git status --porcelain | grep -q "data/medium.json"; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/medium.json
+            git commit -m "chore: update Medium feed"
+            git push
+          else
+            echo "No changes to commit"
+          fi
