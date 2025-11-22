@@ -471,6 +471,10 @@ body:not(.user-is-tabbing) a:focus {
     flex: 0 0 30%;
 }
 
+.work__box.work__box--no-image .work__text {
+    flex: 1;
+}
+
 .work__list {
     /* list-style-type: square; */
     list-style-position: inside;

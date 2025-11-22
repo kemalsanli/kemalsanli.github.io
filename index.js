@@ -41,3 +41,118 @@ window.addEventListener("scroll", () => {
     alterStyles(isBackToTopRendered);
   }
 });
+
+/* -----------------------------------------
+  Load latest GitHub repositories
+ ---------------------------------------- */
+
+const latestReposContainer = document.querySelector("#latest-repos");
+const githubUser = "kemalsanli";
+const latestReposEndpoint = `https://api.github.com/users/${githubUser}/repos?sort=created&direction=desc&per_page=6`;
+
+const renderRepo = (repo, languages) => {
+  const workBox = document.createElement("div");
+  workBox.className = "work__box";
+
+  const text = document.createElement("div");
+  text.className = "work__text";
+
+  const title = document.createElement("h3");
+  title.textContent = repo.name;
+
+  const description = document.createElement("p");
+  description.textContent = repo.description || "No description provided.";
+
+  const list = document.createElement("ul");
+  list.className = "work__list";
+  const langs = languages && languages.length ? languages : [repo.language || "Other"];
+  langs.forEach((lang) => {
+    const languageItem = document.createElement("li");
+    languageItem.textContent = lang;
+    list.appendChild(languageItem);
+  });
+
+  const links = document.createElement("div");
+  links.className = "work__links";
+  const repoLink = document.createElement("a");
+  repoLink.href = repo.html_url;
+  repoLink.className = "link__text";
+  repoLink.textContent = "Visit Repo ";
+  const arrow = document.createElement("span");
+  arrow.textContent = "\u2192";
+  repoLink.appendChild(arrow);
+  links.appendChild(repoLink);
+
+  const githubIcon = document.createElement("a");
+  githubIcon.href = repo.html_url;
+  githubIcon.title = "View on GitHub";
+  const githubImg = document.createElement("img");
+  githubImg.src = "./images/github.svg";
+  githubImg.className = "work__code";
+  githubImg.alt = "GitHub";
+  githubIcon.appendChild(githubImg);
+  links.appendChild(githubIcon);
+
+  text.appendChild(title);
+  text.appendChild(description);
+  text.appendChild(list);
+  text.appendChild(links);
+
+  workBox.appendChild(text);
+
+  const imageBox = document.createElement("div");
+  imageBox.className = "work__image-box";
+  const siteImage = document.createElement("img");
+  siteImage.className = "work__image";
+  siteImage.alt = `${repo.name} preview`;
+  const defaultBranch = repo.default_branch || "main";
+  siteImage.src = `https://raw.githubusercontent.com/${githubUser}/${repo.name}/${defaultBranch}/SiteImage.png`;
+  siteImage.onerror = () => {
+    workBox.classList.add("work__box--no-image");
+    imageBox.remove();
+  };
+  imageBox.appendChild(siteImage);
+  workBox.appendChild(imageBox);
+
+  latestReposContainer.appendChild(workBox);
+};
+
+const loadLatestRepos = async () => {
+  if (!latestReposContainer) {
+    return;
+  }
+
+  latestReposContainer.textContent = "Loading latest repositories...";
+
+  try {
+    const response = await fetch(latestReposEndpoint);
+
+    if (!response.ok) {
+      throw new Error("GitHub API request failed");
+    }
+
+    const repos = await response.json();
+    latestReposContainer.textContent = "";
+
+    const repoLanguages = await Promise.all(
+      repos.map(async (repo) => {
+        try {
+          const res = await fetch(repo.languages_url);
+          if (!res.ok) throw new Error("languages fetch failed");
+          const langs = await res.json();
+          return Object.keys(langs);
+        } catch (err) {
+          console.error(err);
+          return [];
+        }
+      })
+    );
+
+    repos.forEach((repo, index) => renderRepo(repo, repoLanguages[index]));
+  } catch (error) {
+    latestReposContainer.textContent = "Unable to load repositories right now.";
+    console.error(error);
+  }
+};
+
+loadLatestRepos();
