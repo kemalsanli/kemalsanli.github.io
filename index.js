@@ -48,7 +48,7 @@ window.addEventListener("scroll", () => {
 
 const latestReposContainer = document.querySelector("#latest-repos");
 const githubUser = "kemalsanli";
-const latestReposEndpoint = `https://api.github.com/users/${githubUser}/repos?sort=created&direction=desc&per_page=6`;
+const latestReposEndpoint = `https://api.github.com/users/${githubUser}/repos?sort=updated&direction=desc&per_page=6`;
 
 const renderRepo = (repo, languages) => {
   const workBox = document.createElement("div");
@@ -164,6 +164,22 @@ loadLatestRepos();
 const blogListContainer = document.querySelector("#blog-list");
 const mediumFeedPath = "./data/medium.json";
 
+const getFirstImageFromHtml = (html) => {
+  const match = html && html.match(/<img[^>]*src=["']([^"']+)["']/i);
+  return match ? match[1] : "";
+};
+
+const getSnippetFromHtml = (html) => {
+  if (!html) return "";
+  const imgIndex = html.search(/<img/i);
+  const upToImg = imgIndex >= 0 ? html.slice(0, imgIndex) : html;
+  const textOnly = upToImg.replace(/<[^>]+>/g, "").trim();
+  const snippet = textOnly || html.replace(/<[^>]+>/g, "").trim();
+  const maxLen = 220;
+  if (snippet.length <= maxLen) return snippet;
+  return snippet.slice(0, maxLen).trim() + "...";
+};
+
 const renderBlogPost = (post) => {
   const workBox = document.createElement("div");
   workBox.className = "work__box";
@@ -175,9 +191,7 @@ const renderBlogPost = (post) => {
   title.textContent = post.title || "Untitled post";
 
   const description = document.createElement("p");
-  description.innerHTML = post.description
-    ? post.description.replace(/<[^>]+>/g, "").slice(0, 180) + "..."
-    : "";
+  description.textContent = getSnippetFromHtml(post.description);
 
   const list = document.createElement("ul");
   list.className = "work__list";
@@ -203,13 +217,15 @@ const renderBlogPost = (post) => {
 
   workBox.appendChild(text);
 
-  if (post.thumbnail) {
+  const imageSrc = post.thumbnail || getFirstImageFromHtml(post.description || "");
+
+  if (imageSrc) {
     const imageBox = document.createElement("div");
     imageBox.className = "work__image-box";
     const img = document.createElement("img");
     img.className = "work__image";
     img.alt = post.title || "Medium post";
-    img.src = post.thumbnail;
+    img.src = imageSrc;
     img.onerror = () => {
       workBox.classList.add("work__box--no-image");
       imageBox.remove();

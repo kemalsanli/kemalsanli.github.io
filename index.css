@@ -475,6 +475,10 @@ body:not(.user-is-tabbing) a:focus {
     flex: 1;
 }
 
+.section__cta {
+    margin-top: var(--gutter-medium);
+}
+
 .work__list {
     /* list-style-type: square; */
     list-style-position: inside;
