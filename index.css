@@ -115,6 +115,19 @@ img {
     max-width: 100%;
 }
 
+.work__image {
+    width: 100%;
+    height: auto;
+    max-height: 42rem;
+    object-fit: contain;
+}
+
+@media(max-width: 600px) {
+    .work__image {
+        max-height: 32rem;
+    }
+}
+
 /* --------------------------------------- */
 /* ----- Headlines and Paragraphs ----- */
 /* --------------------------------------- */
