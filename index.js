@@ -245,7 +245,7 @@ const loadBlogPosts = async () => {
   blogListContainer.textContent = "Loading blog posts...";
 
   try {
-    const response = await fetch(mediumFeedPath + "?cache-bust=" + Date.now());
+    const response = await fetch(mediumFeedPath);
     if (!response.ok) throw new Error("Failed to load Medium feed");
     const data = await response.json();
     const posts = data.posts || [];

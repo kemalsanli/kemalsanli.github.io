@@ -13,7 +13,7 @@
     font-family: 'Jost';
     font-style: normal;
     font-weight: 400;
-    src: url('./fonts/Jost-Regular.ttf') format('woff');
+    src: url('./fonts/Jost-Regular.ttf') format('truetype');
 }
 
 * {
@@ -90,12 +90,6 @@ body {
 @media(max-width: 1240px) {
     .row {
         padding: 0 var(--gutter-medium);
-    }
-}
-
-@media(max-width: 600px) {
-    .row {
-        padding: 0 var(--gutter-normal);
     }
 }
 
@@ -493,7 +487,6 @@ body:not(.user-is-tabbing) a:focus {
 }
 
 .work__list {
-    /* list-style-type: square; */
     list-style-position: inside;
     margin-bottom: var(--gutter-normal);
 }
@@ -523,32 +516,6 @@ body:not(.user-is-tabbing) a:focus {
 @media(max-width: 900px) {
     .work__code {
         height: 4rem;
-    }
-}
-
-/* --------------------------------------- */
-/* ----- Clients ----- */
-/* --------------------------------------- */
-
-.client__logos {
-    display: flex;
-    justify-content: space-between;
-    filter: invert(100%) grayscale(100%) opacity(.8);
-}
-
-.client__logo {
-    height: 6.5rem;
-    max-width: 18rem;
-}
-
-@media(max-width: 1240px) {
-    .client__logos {
-        overflow-x: scroll;
-        padding: var(--gutter-normal);
-    }
-
-    .client__logo:not(:last-of-type) {
-        margin-right: var(--gutter-medium);
     }
 }
 
@@ -614,17 +581,6 @@ body:not(.user-is-tabbing) a:focus {
 
 .footer__social-image {
     height: 4rem;
-}
-
-.footer__github-buttons {
-    display: flex;
-    justify-content: center;
-}
-
-.footer__github-buttons iframe {
-    height: 2.5rem;
-    width: 84px;
-    transform: translateY(3px);
 }
 
 @media(max-width: 500px) {

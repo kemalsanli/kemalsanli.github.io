@@ -47,11 +47,27 @@ jobs:
 
           out_path = "data/medium.json"
           os.makedirs(os.path.dirname(out_path), exist_ok=True)
-          with open(out_path, "w", encoding="utf-8") as f:
-            json.dump({
-              "fetched_at": datetime.datetime.utcnow().isoformat() + "Z",
-              "posts": posts
-            }, f, ensure_ascii=False, indent=2)
+          
+          # Load existing data to compare posts
+          existing_posts = []
+          if os.path.exists(out_path):
+            try:
+              with open(out_path, "r", encoding="utf-8") as f:
+                existing_data = json.load(f)
+                existing_posts = existing_data.get("posts", [])
+            except:
+              pass
+          
+          # Only write if posts actually changed
+          if posts != existing_posts:
+            with open(out_path, "w", encoding="utf-8") as f:
+              json.dump({
+                "fetched_at": datetime.datetime.utcnow().isoformat() + "Z",
+                "posts": posts
+              }, f, ensure_ascii=False, indent=2)
+            print("Posts changed, file updated")
+          else:
+            print("No changes in posts, file not modified")
           PY
 
       - name: Commit and push if changed
